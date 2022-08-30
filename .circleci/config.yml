@@ -16,26 +16,46 @@ jobs:
   #              --region us-east-1
 
   # Exercise: Config and Deployment
-  configure_infrastructure: 
+  #configure_infrastructure: 
+  #  docker:
+  #    - image: python:3.7-alpine3.11
+  #  steps:
+  #    - checkout
+  #    - add_ssh_keys:
+  #        fingerprints: ["2f:56:68:49:19:9f:06:77:58:14:c6:fe:f6:5f:6a:49"] # You can get this ID in the section where you registered the SSH Key
+  #    - run:
+  #        name: Install dependencies
+  #        command: |
+  #          # install the dependencies needed for your playbook
+  #          apk add --update ansible 
+  #    - run:
+  #        name: Configure server
+  #        command: |
+  #          ansible-playbook -i inventory.txt main.yml
+  
+  # Exercise: Smoke Testing
+  smoke_test:
     docker:
-      - image: python:3.7-alpine3.11
+     - image: alpine:latest
     steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["2f:56:68:49:19:9f:06:77:58:14:c6:fe:f6:5f:6a:49"] # You can get this ID in the section where you registered the SSH Key
-      - run:
-          name: Install dependencies
+       - run: apk add --update curl
+       - run:
+          name: smoke test
           command: |
-            # install the dependencies needed for your playbook
-            apk add --update ansible 
-      - run:
-          name: Configure server
-          command: |
-            ansible-playbook -i inventory.txt main.yml
+           URL="https://blog.udacity.com/"
+           # Test if website exists
+           if curl -s --head ${URL} 
+           then
+              return 0
+            else
+              return 1
+           fi
+
 
 # Sequential workflow
 workflows:
   # Name the workflow
   my_jobs:
     jobs:
-      - configure_infrastructure
+    # - configure_infrastructure
+      - smoke_test
